@@ -1,0 +1,12 @@
+{
+	"name": "championshipseries",
+	"title": "P!P Championship Series",
+	"include": [],
+	"exclude": [{
+		"filterType": "tag",
+		"values": ["mega"]
+	}, {
+		"filterType": "id",
+		"values": ["aegislash_blade", "aegislash_shield"]
+	}]
+}
