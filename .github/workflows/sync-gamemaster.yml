@@ -1,0 +1,52 @@
+name: Sync GameMaster Data
+
+on:
+  schedule:
+    # Runs daily at 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allows manual triggering
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Clone pvpoke gamemaster folder
+        run: |
+          # Clone the pvpoke repository with sparse checkout
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/pvpoke/pvpoke.git temp_pvpoke
+          cd temp_pvpoke
+          git sparse-checkout set src/data/gamemaster
+          
+          # Move the gamemaster files to the root of the repo
+          cd ..
+          rm -rf gamemaster
+          mv temp_pvpoke/src/data/gamemaster ./gamemaster
+          
+          # Clean up
+          rm -rf temp_pvpoke
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git add gamemaster
+          if git diff --staged --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "Update gamemaster data - $(date -u +'%Y-%m-%d')"
+          git push
