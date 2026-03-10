@@ -25,19 +25,19 @@ jobs:
           cd temp_pvpoke
           git sparse-checkout set src/data
           
-          # Move the gamemaster folder to the root of the repo
+          # Create v1 directory and move all files there
           cd ..
-          rm -rf gamemaster
-          mv temp_pvpoke/src/data/gamemaster ./gamemaster
+          rm -rf v1
+          mkdir -p v1
           
-          # Move the rankings folder to src/data/rankings
-          mkdir -p src/data
-          rm -rf src/data/rankings
-          mv temp_pvpoke/src/data/rankings ./src/data/rankings
+          # Move the gamemaster folder to v1/gamemaster
+          mv temp_pvpoke/src/data/gamemaster ./v1/gamemaster
           
-          # Move the gamemaster.json file to src/data/gamemaster.json
-          rm -f src/data/gamemaster.json
-          mv temp_pvpoke/src/data/gamemaster.json ./src/data/gamemaster.json
+          # Move the rankings folder to v1/rankings
+          mv temp_pvpoke/src/data/rankings ./v1/rankings
+          
+          # Move the gamemaster.json file to v1/gamemaster.json
+          mv temp_pvpoke/src/data/gamemaster.json ./v1/gamemaster.json
           
           # Clean up
           rm -rf temp_pvpoke
@@ -45,7 +45,7 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
-          git add gamemaster src/data/rankings src/data/gamemaster.json
+          git add v1
           if git diff --staged --quiet; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
           else
