@@ -18,17 +18,26 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Clone pvpoke gamemaster folder
+      - name: Clone pvpoke data
         run: |
           # Clone the pvpoke repository with sparse checkout
           git clone --depth 1 --filter=blob:none --sparse https://github.com/pvpoke/pvpoke.git temp_pvpoke
           cd temp_pvpoke
-          git sparse-checkout set src/data/gamemaster
+          git sparse-checkout set src/data/gamemaster src/data/rankings src/data/gamemaster.json
           
-          # Move the gamemaster files to the root of the repo
+          # Move the gamemaster folder to the root of the repo
           cd ..
           rm -rf gamemaster
           mv temp_pvpoke/src/data/gamemaster ./gamemaster
+          
+          # Move the rankings folder to src/data/rankings
+          mkdir -p src/data
+          rm -rf src/data/rankings
+          mv temp_pvpoke/src/data/rankings ./src/data/rankings
+          
+          # Move the gamemaster.json file to src/data/gamemaster.json
+          rm -f src/data/gamemaster.json
+          mv temp_pvpoke/src/data/gamemaster.json ./src/data/gamemaster.json
           
           # Clean up
           rm -rf temp_pvpoke
@@ -36,7 +45,7 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
-          git add gamemaster
+          git add gamemaster src/data/rankings src/data/gamemaster.json
           if git diff --staged --quiet; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
           else
