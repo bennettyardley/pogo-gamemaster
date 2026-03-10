@@ -23,7 +23,8 @@ jobs:
           # Clone the pvpoke repository with sparse checkout
           git clone --depth 1 --filter=blob:none --sparse https://github.com/pvpoke/pvpoke.git temp_pvpoke
           cd temp_pvpoke
-          git sparse-checkout set src/data/gamemaster src/data/rankings src/data/gamemaster.json
+          git sparse-checkout set src/data/gamemaster src/data/rankings
+          git sparse-checkout add src/data/gamemaster.json
           
           # Move the gamemaster folder to the root of the repo
           cd ..
